@@ -3,6 +3,8 @@ import gbmj.tile, gbmj.meld;
 
 import gbmj.internal : winds, dragons, characters, bamboos, dots, flowers, jokers, unknowns;
 
+enum size_t setsInHand = 4;
+
 /// The hand.
 struct Hand
 {

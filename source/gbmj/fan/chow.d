@@ -51,12 +51,21 @@ auto choose(T)(T[] arr, ulong p)
 {
 	return arr.length.iota.filter!(i => p >> i & 1).map!(i => arr[i]).array;
 }
-enum _choose = [
-	[[0]],
-	[[0], [1]],
-	[[0], [1, 2], [3]],
-	[[0], [1, 2, 4], [3, 5, 6], [7]],
-	[[0], [1, 2, 4, 8], [3, 5, 6, 9, 10, 12], [7, 11, 13, 14], [15]]];
+import gbmj.hand: setsInHand;
+private enum _choose = setsInHand.makeChoose;
+
+private auto makeChoose(size_t maxChows)
+{
+	auto ret = new size_t[][][](maxChows+1, 0, 0);
+	foreach (i, ref table; ret)
+	{
+		// if (i <= 1) continue; // no (0|1)-chow-fans
+		table.length = i + 1;
+		foreach (j; 0..(1 << i))
+			table[j.popcnt] ~= j;
+	}
+	return ret;
+}
 ///
 Fan[] chow4(Tile[] chows)
 in
