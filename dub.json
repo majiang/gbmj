@@ -23,5 +23,13 @@
 			"targetType": "executable",
 			"versions": ["JMSA"]
 		}
-	]
+	],
+	"buildTypes":
+	{
+		"docs":
+		{
+			"buildOptions": ["syntaxOnly"],
+			"dflags": ["-c", "-Dddocs", "-op"]
+		}
+	}
 }
