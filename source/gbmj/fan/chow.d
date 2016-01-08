@@ -2,34 +2,47 @@ module gbmj.fan.chow;
 import gbmj.fan, gbmj.tile;
 
 import std.algorithm, std.range, std.array;
+import core.bitop : popcnt;
 
-///
+/** All chow-fan
+
+Params:
+	chows = the array of center tiles of chows in a hand.
+Returns:
+	the array of all chow-fans.
+*/
 Fan[] chowAll(Tile[] chows)
 {
 	Fan[] fans;
-	auto visited = new bool[1 << chows.length];
+	/* Flags for handling the inclusion of chow-fans, e.g.
+	the inclusion between triple chows and quadruple chows.
+	*/
+	size_t used;
+
+	// Find larger fans first, and then smaller fans.
 	foreach_reverse (i, c; _choose[chows.length])
 	{
 		if (i == 1)
 			break;
+		// p indicates the focused combination of chows.
 		foreach (p; c)
 		{
-			if (visited[p])
+			// combination with more than one used chows.
+			if (1 < (p & used).popcnt)
 				continue;
-			Fan[] current;
-			switch (i)
+			Fan[] found;
+			switch (i) // TODO: maybe polymorphism is better than switch.
 			{
-				case 2: current = chows.choose(p).chow2; break;
-				case 3: current = chows.choose(p).chow3; break;
-				case 4: current = chows.choose(p).chow4; break;
+				case 2: found = chows.choose(p).chow2; break;
+				case 3: found = chows.choose(p).chow3; break;
+				case 4: found = chows.choose(p).chow4; break;
 				default: assert (false);
 			}
-			if (current.empty)
+			if (found.empty)
 				continue;
-			foreach (q; 0..p)
-				if ((p & q) == q)
-					visited[q] = true;
-			fans ~= current;
+			// mark used chows.
+			used |= p;
+			fans ~= found;
 		}
 	}
 	return fans;
