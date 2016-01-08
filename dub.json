@@ -1,0 +1,27 @@
+{
+	"name": "gbmj",
+	"description": "Guobiao Majiang.",
+	"copyright": "Copyright (c) 2015, Ryuichi OHORI",
+	"authors": ["Ryuichi OHORI"],
+	"homepage": "https://github.com/majiang/gbmj",
+	"license": "MIT",
+	"dependencies": {},
+	"configurations":
+	[
+		{
+			"name": "PWS",
+			"targetType": "executable",
+			"versions": ["PWS"]
+		},
+		{
+			"name": "WMO",
+			"targetType": "executable",
+			"versions": ["WMO"]
+		},
+		{
+			"name": "JMSA",
+			"targetType": "executable",
+			"versions": ["JMSA"]
+		}
+	]
+}
