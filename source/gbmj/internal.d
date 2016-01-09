@@ -7,8 +7,8 @@ package:
 
 string _generateOneTile(string suit)
 {
-	import std.string : format;
-	return "auto %1$s(T)(in T rank){return Tile(Suit.%1$s, cast(ushort)rank);}".format(suit);
+    import std.string : format;
+    return "auto %1$s(T)(in T rank){return Tile(Suit.%1$s, cast(ushort)rank);}".format(suit);
 }
 mixin (_generateOneTile("wind"));
 mixin (_generateOneTile("dragon"));
@@ -21,8 +21,8 @@ auto unknown(){return Tile(Suit.unknown, 0);}
 
 string _generateTiles(string suit)
 {
-	import std.string : format;
-	return "auto %1$ss(T)(in T[] ranks...){Tile[] ret;foreach (rank; ranks)ret ~= Tile(Suit.%1$s, cast(ushort)rank);return ret;}".format(suit);
+    import std.string : format;
+    return "auto %1$ss(T)(in T[] ranks...){Tile[] ret;foreach (rank; ranks)ret ~= Tile(Suit.%1$s, cast(ushort)rank);return ret;}".format(suit);
 }
 mixin (_generateTiles("wind"));
 mixin (_generateTiles("dragon"));
@@ -35,8 +35,8 @@ auto unknowns(in size_t n){return unknown.repeat(n).array;}
 
 string _generateMeld(string meldType)
 {
-	import std.string : format;
-	return "auto %1$s(Tile tile){return Meld(MeldType.%1$s, tile);}".format(meldType);
+    import std.string : format;
+    return "auto %1$s(Tile tile){return Meld(MeldType.%1$s, tile);}".format(meldType);
 }
 mixin (_generateMeld("pungRight"));
 mixin (_generateMeld("pungOpposite"));
@@ -56,19 +56,19 @@ mixin (_generateMeld("flower"));
 Tile low(Tile tile)
 in
 {
-	assert (tile.isNumeric);
+    assert (tile.isNumeric);
 }
 body
 {
-	return Tile(tile.suit, cast(ushort)(tile.rank - 1));
+    return Tile(tile.suit, cast(ushort)(tile.rank - 1));
 }
 Tile high(Tile tile)
 in
 {
-	assert (tile.isNumeric);
+    assert (tile.isNumeric);
 }
 body
 {
-	return Tile(tile.suit, cast(ushort)(tile.rank + 1));
+    return Tile(tile.suit, cast(ushort)(tile.rank + 1));
 }
 
