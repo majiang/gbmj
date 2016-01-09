@@ -43,3 +43,9 @@ struct Meld
 		}
 	}
 }
+
+///
+bool isSet(Meld meld)
+{
+	return meld.meldType != MeldType.flower;
+}

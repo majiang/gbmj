@@ -1,12 +1,16 @@
 module gbmj.tile;
 
-import std.algorithm;
+import std.algorithm, std.range, std.ascii;
+import gbmj.internal;
 
 /// Typecode for the suit of a tile.
 enum Suit
 {
 	wind, dragon, character, bamboo, dot, flower, joker, unknown
 }
+enum honorSuits = [Suit.wind, Suit.dragon];
+enum numericSuits = [Suit.character, Suit.bamboo, Suit.dot];
+enum specialSuits = [Suit.flower, Suit.joker, Suit.unknown];
 
 /// Type for the rank of a tile.
 alias Rank = uint;
@@ -17,11 +21,19 @@ version (PWS) version = UseFlower;
 version (WMO) version = UseFlower;
 version (JMSA) version = NoFlower;
 
+enum Rank maxOfNumeric = 9;
 /// The number of different tiles of a suit.
 version (UseFlower) enum Rank[] maxOfSuit = [
-	4, 3, 9, 9, 9, 8, 0, 1];
+	4, 3, maxOfNumeric, maxOfNumeric, maxOfNumeric, 8, 0, 1];
 version (NoFlower) enum Rank[] maxOfSuit = [
-	4, 3, 9, 9, 9, 0, 0, 1];
+	4, 3, maxOfNumeric, maxOfNumeric, maxOfNumeric, 0, 0, 1];
+enum tilePositionOffset =
+(){
+	auto ret = new Rank[1];
+	foreach (m; maxOfSuit)
+		ret ~= m + ret[$-1];
+	return ret;
+}();
 
 /// The number of duplications of a tile.
 enum duplicationOfSuit = [
@@ -75,19 +87,29 @@ struct Tile
 	}
 }
 
+bool isNumeric(Suit suit)
+{
+	return suit == Suit.character
+		|| suit == Suit.bamboo
+		|| suit == Suit.dot;
+}
+
 ///
 bool isNumeric(Tile tile)
 {
-	return tile.suit == Suit.character
-		|| tile.suit == Suit.bamboo
-		|| tile.suit == Suit.dot;
+	return tile.suit.isNumeric;
+}
+
+bool isHonor(Suit suit)
+{
+	return suit == Suit.wind
+		|| suit == Suit.dragon;
 }
 
 ///
 bool isHonor(Tile tile)
 {
-	return tile.suit == Suit.wind
-		|| tile.suit == Suit.dragon;
+	return tile.suit.isHonor;
 }
 
 ///
@@ -173,21 +195,65 @@ string toAsciiString(Tile tile)
 	import std.conv : to;
 	final switch (tile.suit)
 	{
-		case Suit.wind:
-			return "ESWN"[rank] ~ "w";
-		case Suit.dragon:
-			return "RGW"[rank] ~ "d";
-		case Suit.character:
-			return (rank+1).to!string ~ "c";
-		case Suit.bamboo:
-			return (rank+1).to!string ~ "b";
-		case Suit.dot:
-			return (rank+1).to!string ~ "d";
-		case Suit.flower:
-			return "Fl";
-		case Suit.joker:
-			return "JK";
-		case Suit.unknown:
-			return "--";
+		case Suit.wind: return "ESWN"[rank] ~ "w";
+		case Suit.dragon: return "RGW"[rank] ~ "d";
+
+		case Suit.character: return (rank+1).to!string ~ "c";
+		case Suit.bamboo: return (rank+1).to!string ~ "b";
+		case Suit.dot: return (rank+1).to!string ~ "d";
+
+		case Suit.flower: return "Fl";
+		case Suit.joker: return "JK";
+		case Suit.unknown: return "--";
 	}
+}
+
+Tile[] readTiles(string s)
+{
+	Tile[] ret;
+	while (!s.empty)
+	{
+		while (s[0] == ' ')
+			s = s[1..$];
+		ret ~= s[0..2].readTile;
+		s = s[2..$];
+	}
+	return ret;
+}
+
+Tile readTile(string s)
+{
+	if ("ESWNRG".canFind(s[0]))
+		return s.readHonor;
+	if (s[0].isDigit)
+		return s.readNumeric;
+	return s.readSpecial;
+}
+
+Tile readHonor(string s)
+{
+	switch (s[1])
+	{
+		case 'w': return "ESWN".countUntil(s[0]).wind;
+		case 'd': return "RGW".countUntil(s[0]).dragon;
+		default:
+			assert (false, "illegal honor");
+	}
+}
+
+Tile readNumeric(string s)
+{
+	switch (s[1])
+	{
+		case 'c': return (s[0] - '1').character;
+		case 'b': return (s[0] - '1').bamboo;
+		case 'd': return (s[0] - '1').dot;
+		default:
+			assert (false, "illegal numeric");
+	}
+}
+
+Tile readSpecial(string s)
+{
+	assert (false, "Not implemented");
 }
