@@ -154,6 +154,7 @@ auto ranks(R)(R r)
 {
     return r.map!(a => a.rank);
 }
+version (unittestChow)
 unittest
 {
     import std.stdio, std.string;
