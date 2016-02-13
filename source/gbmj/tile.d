@@ -143,6 +143,18 @@ bool isTerminal(Tile tile)
 }
 
 ///
+bool isNormal(Tile tile)
+{
+    return tile.isNumeric || tile.isHonor;
+}
+
+///
+bool isSpecial(Tile tile)
+{
+    return !tile.isNormal;
+}
+
+///
 bool isFlower(Tile tile)
 {
     return tile.suit == Suit.flower;
