@@ -87,6 +87,17 @@ struct Tile
     }
 }
 
+Tile[] allTiles()
+{
+    import std.traits;
+    Tile[] tiles;
+    foreach (suit; EnumMembers!Suit)
+        foreach (rank; 0..maxOfSuit[suit])
+            foreach (i; 0..duplicationOfSuit[suit])
+                tiles ~= Tile(suit, rank);
+    return tiles;
+}
+
 bool isNumeric(Suit suit)
 {
     return suit == Suit.character
