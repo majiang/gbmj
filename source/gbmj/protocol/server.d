@@ -6,9 +6,9 @@ interface Server
 {
     IDealTiles start();///
     ServerReactionDealt accept(ClientDealtTiles clientDealtTiles);///
-    ServerAction accept(ClientDealError clientDealError);///
-    ServerAction accept(ClientHuSelfdrawn clientHu);///
-    ServerAction accept(ClientDiscard clientDiscard);///
+    ServerReactionDealError accept(ClientDealError clientDealError);///
+    ServerReactionHu accept(ClientHuSelfdrawn clientHu);///
+    ServerReactionDiscard accept(ClientDiscard clientDiscard);///
 }
 
 class ServerImpl : Server
@@ -30,17 +30,17 @@ class ServerImpl : Server
             return new PickTile(nextPlayer, dealer.pick);
         return new DealTiles(nextPlayer, dealer.deal);
     }
-    ServerAction accept(ClientDealError clientDealError)
+    ServerReactionDealError accept(ClientDealError clientDealError)
     {
         trace("server: received error for deal");
         return null;
     }
-    ServerAction accept(ClientHuSelfdrawn clientHu)
+    ServerReactionHu accept(ClientHuSelfdrawn clientHu)
     {
         trace("server: received hu");
         return null;
     }
-    ServerAction accept(ClientDiscard clientDiscard)
+    ServerReactionDiscard accept(ClientDiscard clientDiscard)
     {
         tracef("server: received discard %s from client %d", clientDiscard.tile.toString, clientDiscard.source.firstSeat);
         if (dealer.empty)

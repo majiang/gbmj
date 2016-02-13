@@ -19,40 +19,9 @@ unittest
         serverAction = serverAction.visit(clients[serverAction.target.firstSeat]).visit(server);
 }
 
-interface ServerAction
-{
-    Player target() @property;
-    ClientAction visit(Client);
-}
 interface ClientAction
 {
     ServerAction visit(Server);
-}
-interface IDealTiles : ServerAction
-{
-}
-interface ServerReactionDealt : ServerAction
-{
-}
-class DealTiles : IDealTiles, ServerReactionDealt
-{
-    mixin (serverMessageMixin);
-    this (Player target, Tile[] tiles)
-    {
-        this (target);
-        this.tiles = tiles;
-    }
-    Tile[] tiles;
-}
-class PickTile : ServerReactionDealt
-{
-    mixin (serverMessageMixin);
-    this (Player target, Tile tile)
-    {
-        this (target);
-        this.tile = tile;
-    }
-    Tile tile;
 }
 interface ClientReactionDeal : ClientAction
 {
@@ -83,22 +52,6 @@ class ClientHuSelfdrawn : ClientReactionPick
     mixin (clientMessageMixin);
 }
 
-private enum serverMessageMixin =
-q{
-    ClientAction visit(Client client)
-    {
-        return client.accept(this);
-    }
-    this (Player target)
-    {
-        this._target = target;
-    }
-    private Player _target;
-    Player target() @property
-    {
-        return _target;
-    }
-};
 
 private enum clientMessageMixin =
 q{
