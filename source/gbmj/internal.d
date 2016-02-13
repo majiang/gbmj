@@ -5,7 +5,7 @@ import std.algorithm, std.range, std.array;
 
 package:
 
-string _generateOneTile(string suit)
+private string _generateOneTile(string suit)
 {
     import std.string : format;
     return "auto %1$s(T)(in T rank){return Tile(Suit.%1$s, cast(ushort)rank);}".format(suit);
@@ -19,7 +19,7 @@ mixin (_generateOneTile("flower"));
 auto joker(){return Tile(Suit.joker, 0);}
 auto unknown(){return Tile(Suit.unknown, 0);}
 
-string _generateTiles(string suit)
+private string _generateTiles(string suit)
 {
     import std.string : format;
     return "auto %1$ss(T)(in T[] ranks...){Tile[] ret;foreach (rank; ranks)ret ~= Tile(Suit.%1$s, cast(ushort)rank);return ret;}".format(suit);
@@ -33,7 +33,7 @@ mixin (_generateTiles("flower"));
 auto jokers(in size_t n){return joker.repeat(n).array;}
 auto unknowns(in size_t n){return unknown.repeat(n).array;}
 
-string _generateMeld(string meldType)
+private string _generateMeld(string meldType)
 {
     import std.string : format;
     return "auto %1$s(Tile tile){return Meld(MeldType.%1$s, tile);}".format(meldType);
@@ -57,18 +57,20 @@ Tile low(Tile tile)
 in
 {
     assert (tile.isNumeric);
+    assert (0 <= tile.rank - 1);
 }
 body
 {
-    return Tile(tile.suit, cast(ushort)(tile.rank - 1));
+    return Tile(tile.suit, cast(Rank)(tile.rank - 1));
 }
 Tile high(Tile tile)
 in
 {
     assert (tile.isNumeric);
+    assert (tile.rank + 1 < maxOfNumeric);
 }
 body
 {
-    return Tile(tile.suit, cast(ushort)(tile.rank + 1));
+    return Tile(tile.suit, cast(Rank)(tile.rank + 1));
 }
 
