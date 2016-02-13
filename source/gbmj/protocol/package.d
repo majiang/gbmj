@@ -31,13 +31,13 @@ class ClientImpl : Client
 //        tracef("client %d: received deal %-(%s%)", _player.firstSeat, dealTiles.tiles);
 //        src\phobos\std\experimental\logger\core.d(1106): Error: safe function 'std.experimental.logger.core.Logger.memLogFunctions!cast(LogLevel)cast(ubyte)32u.logImplf!(27, "source\\gbmj\\protocol\\package.d", "gbmj.protocol.ClientImpl.accept", "ClientReactionDeal gbmj.protocol.ClientImpl.accept(DealTiles dealTiles)", "gbmj.protocol", immutable(uint), Tile[]).logImplf' cannot call system function 'std.format.formattedWrite!(MsgRange, char, immutable(uint), Tile[]).formattedWrite'
 //        src\phobos\std\experimental\logger\core.d(562): Error: template instance std.experimental.logger.core.Logger.memLogFunctions!cast(LogLevel)cast(ubyte)32u.logImplf!(27, "source\\gbmj\\protocol\\package.d", "gbmj.protocol.ClientImpl.accept", "ClientReactionDeal gbmj.protocol.ClientImpl.accept(DealTiles dealTiles)", "gbmj.protocol", immutable(uint), Tile[]) error instantiating
-        return new ClientDealtTiles(_player.firstSeat);
+        return new ClientDealtTiles(_player);
     }
     ClientReactionPick accept(PickTile pickTile)
     {
         import std.string;
         tracef("client %d: received pick %s", _player.firstSeat, pickTile.tile.toString);
-        return new ClientDiscard();
+        return new ClientDiscard(_player, pickTile.tile);
     }
 private:
     Player _player;
@@ -92,8 +92,8 @@ class ServerImpl : Server
     }
     ServerReactionDealt accept(ClientDealtTiles clientDealtTiles)
     {
-        tracef("server: received OK for deal from client %d", clientDealtTiles.client);
-        auto sourceLogicalSeat = players[clientDealtTiles.client].logicalSeat;
+        tracef("server: received OK for deal from client %d", clientDealtTiles.source.firstSeat);
+        auto sourceLogicalSeat = clientDealtTiles.source.logicalSeat;
         if (sourceLogicalSeat == 3)
             return new PickTile(players[players.logical(0)], dealer.pick);
         auto nextClient = players.logical(sourceLogicalSeat + 1);
@@ -111,8 +111,10 @@ class ServerImpl : Server
     }
     ServerAction accept(ClientDiscard clientDiscard)
     {
-        trace("server: received discard");
-        return null;
+        tracef("server: received discard %s from client %d", clientDiscard.tile.toString, clientDiscard.source.firstSeat);
+        if (dealer.empty)
+            return null;
+        return new PickTile(players[players.logical((clientDiscard.source.logicalSeat + 1) & 3)], dealer.pick);
     }
 }
 
@@ -139,7 +141,7 @@ interface Client
 }
 interface ServerAction
 {
-    Player target();
+    Player target() @property;
     ClientAction visit(Client);
 }
 interface ClientAction
@@ -154,38 +156,22 @@ interface ServerReactionDealt : ServerAction
 }
 class DealTiles : IDealTiles, ServerReactionDealt
 {
-    Player target()
-    {
-        return _target;
-    }
-    ClientAction visit(Client client)
-    {
-        return client.accept(this);
-    }
+    mixin (serverMessageMixin);
     this (Player target, Tile[] tiles)
     {
-        this._target = target;
+        this (target);
         this.tiles = tiles;
     }
-    Player _target;
     Tile[] tiles;
 }
 class PickTile : ServerReactionDealt
 {
-    Player target()
-    {
-        return _target;
-    }
-    ClientAction visit(Client client)
-    {
-        return client.accept(this);
-    }
+    mixin (serverMessageMixin);
     this (Player target, Tile tile)
     {
-        this._target = target;
+        this (target);
         this.tile = tile;
     }
-    Player _target;
     Tile tile;
 }
 interface ClientReactionDeal : ClientAction
@@ -193,40 +179,63 @@ interface ClientReactionDeal : ClientAction
 }
 class ClientDealtTiles : ClientReactionDeal
 {
-    this (size_t client)
-    {
-        this.client = client;
-    }
-    ServerAction visit(Server server)
-    {
-        return server.accept(this);
-    }
-    size_t client;
+    mixin (clientMessageMixin);
 }
 class ClientDealError : ClientReactionDeal
 {
-    ServerAction visit(Server server)
-    {
-        return server.accept(this);
-    }
+    mixin (clientMessageMixin);
 }
 interface ClientReactionPick : ClientAction
 {
 }
 class ClientDiscard : ClientReactionPick
 {
-    ServerAction visit(Server server)
+    mixin (clientMessageMixin);
+    this (Player source, Tile tile)
     {
-        return server.accept(this);
+        this (source);
+        this.tile = tile;
     }
+    Tile tile;
 }
 class ClientHuSelfdrawn : ClientReactionPick
 {
+    mixin (clientMessageMixin);
+}
+
+private enum serverMessageMixin =
+q{
+    ClientAction visit(Client client)
+    {
+        return client.accept(this);
+    }
+    this (Player target)
+    {
+        this._target = target;
+    }
+    private Player _target;
+    Player target() @property
+    {
+        return _target;
+    }
+};
+
+private enum clientMessageMixin =
+q{
     ServerAction visit(Server server)
     {
         return server.accept(this);
     }
-}
+    this (Player source)
+    {
+        this._source = source;
+    }
+    private Player _source;
+    Player source() @property
+    {
+        return _source;
+    }
+};
 
 ///
 struct Player
