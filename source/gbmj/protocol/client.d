@@ -4,10 +4,8 @@ import gbmj.protocol;
 ///
 interface Client
 {
-    /// React the deal with confirming the deal or informing of an error.
-    ClientReactionDeal accept(DealTiles dealTiles);
-    /// React the pick with declaring hu, hua, gang, or discarding a tile.
-    ClientReactionPick accept(PickTile pickTile);
+    ClientReactionDeal accept(DealTiles dealTiles);///
+    ClientReactionPick accept(PickTile pickTile);///
 }
 
 class ClientImpl : Client
