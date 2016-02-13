@@ -25,11 +25,10 @@ class ServerImpl : Server
     ServerReactionDealt accept(ClientDealtTiles clientDealtTiles)
     {
         tracef("server: received OK for deal from client %d", clientDealtTiles.source.firstSeat);
-        auto sourceLogicalSeat = clientDealtTiles.source.logicalSeat;
-        if (sourceLogicalSeat == 3)
-            return new PickTile(players[players.logical(0)], dealer.pick);
-        auto nextClient = players.logical(sourceLogicalSeat + 1);
-        return new DealTiles(players[nextClient], dealer.deal);
+        auto nextPlayer = players.next(clientDealtTiles.source);
+        if (nextPlayer.logicalSeat == 0)
+            return new PickTile(nextPlayer, dealer.pick);
+        return new DealTiles(nextPlayer, dealer.deal);
     }
     ServerAction accept(ClientDealError clientDealError)
     {
@@ -46,6 +45,6 @@ class ServerImpl : Server
         tracef("server: received discard %s from client %d", clientDiscard.tile.toString, clientDiscard.source.firstSeat);
         if (dealer.empty)
             return null;
-        return new PickTile(players[players.logical((clientDiscard.source.logicalSeat + 1) & 3)], dealer.pick);
+        return new PickTile(players.next(clientDiscard.source), dealer.pick);
     }
 }

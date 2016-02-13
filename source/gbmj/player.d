@@ -44,6 +44,17 @@ private:
     size_t _dealInGame;
 }
 
+///
+Player next(Player[] players, Player player)
+{
+    foreach (i, p; players)
+        if (p.logicalSeat == ((player.logicalSeat + 1) & 3))
+            return p;
+    assert (0);
+}
+
+
+
 private:
 version (PWS) version = SeatChange3;
 version (WMO) version = SeatChange3;

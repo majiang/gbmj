@@ -23,14 +23,6 @@ unittest
         serverAction = serverAction.visit(clients[serverAction.target.firstSeat]).visit(server);
 }
 
-size_t logical(Player[] players, size_t logicalSeat)
-{
-    foreach (i, player; players)
-        if (player.logicalSeat == logicalSeat)
-            return i;
-    assert (0);
-}
-
 interface ServerAction
 {
     Player target() @property;
