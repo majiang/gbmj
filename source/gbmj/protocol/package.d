@@ -9,10 +9,6 @@ package import
     gbmj.player,
     std.experimental.logger;
 
-import gbmj.dealer;
-
-import std.experimental.logger;
-
 unittest
 {
     Server server = new ServerImpl;
