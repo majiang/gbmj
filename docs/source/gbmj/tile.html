@@ -15,6 +15,11 @@
 <dd>Type for the rank of a tile.<br><br>
 
 </dd>
+<dt><big><a name="maxOfNumeric"></a>enum Rank <u>maxOfNumeric</u>;
+</big></dt>
+<dd>The number of different tiles of a numeric suit.<br><br>
+
+</dd>
 <dt><big><a name="maxOfSuit"></a>enum Rank[] <u>maxOfSuit</u>;
 </big></dt>
 <dd>The number of different tiles of a suit.<br><br>
@@ -47,6 +52,11 @@
 </dd>
 </dl>
 </dd>
+<dt><big><a name="allTiles"></a>Tile[] <u>allTiles</u>();
+</big></dt>
+<dd>The array of all tiles.<br><br>
+
+</dd>
 <dt><big><a name="isNumeric"></a>bool <u>isNumeric</u>(Tile <i>tile</i>);
 </big></dt>
 <dd><br><br>
@@ -60,6 +70,14 @@
 <dd><br><br>
 </dd>
 <dt><big><a name="isTerminal"></a>bool <u>isTerminal</u>(Tile <i>tile</i>);
+</big></dt>
+<dd><br><br>
+</dd>
+<dt><big><a name="isNormal"></a>bool <u>isNormal</u>(Tile <i>tile</i>);
+</big></dt>
+<dd><br><br>
+</dd>
+<dt><big><a name="isSpecial"></a>bool <u>isSpecial</u>(Tile <i>tile</i>);
 </big></dt>
 <dd><br><br>
 </dd>
@@ -77,11 +95,41 @@
 </dd>
 <dt><big><a name="isGreen"></a>bool <u>isGreen</u>(Tile <i>tile</i>);
 </big></dt>
-<dd><br><br>
+<dd>Green tiles: 23468 bamboos or green dragon.<br><br>
+
 </dd>
 <dt><big><a name="isReversible"></a>bool <u>isReversible</u>(Tile <i>tile</i>);
 </big></dt>
-<dd><br><br>
+<dd>Reversible tiles: 245689 of bamboos, 1234589 of dots or white dragon.<br><br>
+
+</dd>
+<dt><big><a name="unicodeOffsetOfSuit"></a>enum dchar[] <u>unicodeOffsetOfSuit</u>;
+</big></dt>
+<dd>The code points of the first tiles of the suits.
+<br><br>
+<b>Reference:</b><br>
+<a href="http://unicode.org/charts/PDF/U1F000.pdf">Unicode Character Code Charts : Other Symbols : Game Symbols : Mahjong Tiles</a><br><br>
+
+</dd>
+<dt><big><a name="toUnicodeChar"></a>dchar <u>toUnicodeChar</u>(Tile <i>tile</i>);
+</big></dt>
+<dd>Convert a Tile to a unicode character.<br><br>
+
+</dd>
+<dt><big><a name="toAsciiString"></a>string <u>toAsciiString</u>(Tile <i>tile</i>);
+</big></dt>
+<dd>Convert a Tile to a human-readable ASCII string.<br><br>
+
+</dd>
+<dt><big><a name="readTiles"></a>Tile[] <u>readTiles</u>(string <i>s</i>);
+</big></dt>
+<dd>Convert an ASCII string to a Tile[].<br><br>
+
+</dd>
+<dt><big><a name="readTile"></a>Tile <u>readTile</u>(string <i>s</i>);
+</big></dt>
+<dd>Convert a two-character ASCII string to a Tile.<br><br>
+
 </dd>
 </dl>
 
