@@ -18,27 +18,7 @@
 </dd>
 </dl>
 </dd>
-<dt><big><a name="IDealTiles"></a>interface <u>IDealTiles</u>: <u>gbmj.protocol.serveraction.ServerAction</u>;
-</big></dt>
-<dd><br><br>
-</dd>
-<dt><big><a name="ServerReactionDealt"></a>interface <u>ServerReactionDealt</u>: <u>gbmj.protocol.serveraction.ServerAction</u>;
-</big></dt>
-<dd><br><br>
-</dd>
-<dt><big><a name="ServerReactionDealError"></a>interface <u>ServerReactionDealError</u>: <u>gbmj.protocol.serveraction.ServerAction</u>;
-</big></dt>
-<dd><br><br>
-</dd>
-<dt><big><a name="ServerReactionHu"></a>interface <u>ServerReactionHu</u>: <u>gbmj.protocol.serveraction.ServerAction</u>;
-</big></dt>
-<dd><br><br>
-</dd>
-<dt><big><a name="ServerReactionDiscard"></a>interface <u>ServerReactionDiscard</u>: <u>gbmj.protocol.serveraction.ServerAction</u>;
-</big></dt>
-<dd><br><br>
-</dd>
-<dt><big><a name="DealTiles"></a>class <u>DealTiles</u>: <u>gbmj.protocol.serveraction.IDealTiles</u>, <u>gbmj.protocol.serveraction.ServerReactionDealt</u>;
+<dt><big><a name="DealTiles"></a>class <u>DealTiles</u>: <u>gbmj.protocol.serveraction.ServerAction</u>;
 </big></dt>
 <dd><br><br>
 <dl><dt><big><a name="DealTiles.this"></a>this(Player <i>target</i>, Tile[] <i>tiles</i>);
@@ -51,7 +31,7 @@
 </dd>
 </dl>
 </dd>
-<dt><big><a name="PickTile"></a>class <u>PickTile</u>: <u>gbmj.protocol.serveraction.ServerReactionDealt</u>, <u>gbmj.protocol.serveraction.ServerReactionDiscard</u>;
+<dt><big><a name="PickTile"></a>class <u>PickTile</u>: <u>gbmj.protocol.serveraction.ServerAction</u>;
 </big></dt>
 <dd><br><br>
 <dl><dt><big><a name="PickTile.this"></a>this(Player <i>target</i>, Tile <i>tile</i>);

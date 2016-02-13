@@ -9,30 +9,9 @@ interface ServerAction
     ClientAction visit(Client);///
 }
 
-///
-interface IDealTiles : ServerAction
-{
-}
-///
-interface ServerReactionDealt : ServerAction
-{
-}
-///
-interface ServerReactionDealError : ServerAction
-{
-}
-///
-interface ServerReactionHu : ServerAction
-{
-}
-///
-interface ServerReactionDiscard : ServerAction
-{
-}
-
 
 ///
-class DealTiles : IDealTiles, ServerReactionDealt
+class DealTiles : ServerAction
 {
     mixin (serverMessageMixin);
     ///
@@ -45,7 +24,7 @@ class DealTiles : IDealTiles, ServerReactionDealt
     Tile[] tiles;
 }
 ///
-class PickTile : ServerReactionDealt, ServerReactionDiscard
+class PickTile : ServerAction
 {
     mixin (serverMessageMixin);
     ///
