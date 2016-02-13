@@ -8,8 +8,11 @@ class Dealer
     this ()
     {
         this.tiles = allTiles;
-        import std.random;
-        randomShuffle(tiles);
+        debug (withoutShuffle) {} else
+        {
+            import std.random;
+            randomShuffle(tiles);
+        }
     }
     ///
     bool empty() @property
