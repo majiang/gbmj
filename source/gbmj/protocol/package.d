@@ -33,6 +33,12 @@ class ClientImpl : Client
 //        src\phobos\std\experimental\logger\core.d(562): Error: template instance std.experimental.logger.core.Logger.memLogFunctions!cast(LogLevel)cast(ubyte)32u.logImplf!(27, "source\\gbmj\\protocol\\package.d", "gbmj.protocol.ClientImpl.accept", "ClientReactionDeal gbmj.protocol.ClientImpl.accept(DealTiles dealTiles)", "gbmj.protocol", immutable(uint), Tile[]) error instantiating
         return new ClientDealtTiles(_player.firstSeat);
     }
+    ClientReactionPick accept(PickTile pickTile)
+    {
+        import std.string;
+        tracef("client %d: received pick %s", _player.firstSeat, pickTile.tile.toString);
+        return new ClientDiscard();
+    }
 private:
     Player _player;
 }
@@ -84,18 +90,28 @@ class ServerImpl : Server
         this.dealer = new Dealer;
         return new DealTiles(players[0], dealer.deal);
     }
-    ServerAction accept(ClientDealtTiles clientDealtTiles)
+    ServerReactionDealt accept(ClientDealtTiles clientDealtTiles)
     {
         tracef("server: received OK for deal from client %d", clientDealtTiles.client);
         auto sourceLogicalSeat = players[clientDealtTiles.client].logicalSeat;
         if (sourceLogicalSeat == 3)
-            return null;
+            return new PickTile(players[players.logical(0)], dealer.pick);
         auto nextClient = players.logical(sourceLogicalSeat + 1);
         return new DealTiles(players[nextClient], dealer.deal);
     }
     ServerAction accept(ClientDealError clientDealError)
     {
         trace("server: received error for deal");
+        return null;
+    }
+    ServerAction accept(ClientHuSelfdrawn clientHu)
+    {
+        trace("server: received hu");
+        return null;
+    }
+    ServerAction accept(ClientDiscard clientDiscard)
+    {
+        trace("server: received discard");
         return null;
     }
 }
@@ -111,12 +127,15 @@ size_t logical(Player[] players, size_t logicalSeat)
 interface Server
 {
     IDealTiles start();
-    ServerAction accept(ClientDealtTiles clientDealtTiles);
+    ServerReactionDealt accept(ClientDealtTiles clientDealtTiles);
     ServerAction accept(ClientDealError clientDealError);
+    ServerAction accept(ClientHuSelfdrawn clientHu);
+    ServerAction accept(ClientDiscard clientDiscard);
 }
 interface Client
 {
     ClientReactionDeal accept(DealTiles dealTiles);
+    ClientReactionPick accept(PickTile pickTile);
 }
 interface ServerAction
 {
@@ -130,7 +149,10 @@ interface ClientAction
 interface IDealTiles : ServerAction
 {
 }
-class DealTiles : IDealTiles
+interface ServerReactionDealt : ServerAction
+{
+}
+class DealTiles : IDealTiles, ServerReactionDealt
 {
     Player target()
     {
@@ -148,6 +170,24 @@ class DealTiles : IDealTiles
     Player _target;
     Tile[] tiles;
 }
+class PickTile : ServerReactionDealt
+{
+    Player target()
+    {
+        return _target;
+    }
+    ClientAction visit(Client client)
+    {
+        return client.accept(this);
+    }
+    this (Player target, Tile tile)
+    {
+        this._target = target;
+        this.tile = tile;
+    }
+    Player _target;
+    Tile tile;
+}
 interface ClientReactionDeal : ClientAction
 {
 }
@@ -164,6 +204,23 @@ class ClientDealtTiles : ClientReactionDeal
     size_t client;
 }
 class ClientDealError : ClientReactionDeal
+{
+    ServerAction visit(Server server)
+    {
+        return server.accept(this);
+    }
+}
+interface ClientReactionPick : ClientAction
+{
+}
+class ClientDiscard : ClientReactionPick
+{
+    ServerAction visit(Server server)
+    {
+        return server.accept(this);
+    }
+}
+class ClientHuSelfdrawn : ClientReactionPick
 {
     ServerAction visit(Server server)
     {
