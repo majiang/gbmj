@@ -1,6 +1,15 @@
 module gbmj.protocol;
+public import
+    gbmj.protocol.server,
+    gbmj.protocol.client,
+    gbmj.protocol.serveraction,
+    gbmj.protocol.clientaction;
+package import
+    gbmj.tile,
+    gbmj.player,
+    std.experimental.logger;
 
-import gbmj.tile, gbmj.player, gbmj.dealer;
+import gbmj.dealer;
 
 import std.experimental.logger;
 
@@ -14,33 +23,6 @@ unittest
         serverAction = serverAction.visit(clients[serverAction.target.firstSeat]).visit(server);
 }
 
-class ClientImpl : Client
-{
-    this (size_t firstSeat)
-    {
-        this._player = Player(firstSeat);
-    }
-    ClientReactionDeal accept(DealTiles dealTiles)
-    {
-        // workaround
-        import std.string;
-        tracef("client %d: received deal %s", _player.firstSeat, "%-(%s%)".format(dealTiles.tiles));
-
-//        should, but does not work. probably a safe/trusted/system-related bug in std.experimental.logger:
-//        tracef("client %d: received deal %-(%s%)", _player.firstSeat, dealTiles.tiles);
-//        src\phobos\std\experimental\logger\core.d(1106): Error: safe function 'std.experimental.logger.core.Logger.memLogFunctions!cast(LogLevel)cast(ubyte)32u.logImplf!(27, "source\\gbmj\\protocol\\package.d", "gbmj.protocol.ClientImpl.accept", "ClientReactionDeal gbmj.protocol.ClientImpl.accept(DealTiles dealTiles)", "gbmj.protocol", immutable(uint), Tile[]).logImplf' cannot call system function 'std.format.formattedWrite!(MsgRange, char, immutable(uint), Tile[]).formattedWrite'
-//        src\phobos\std\experimental\logger\core.d(562): Error: template instance std.experimental.logger.core.Logger.memLogFunctions!cast(LogLevel)cast(ubyte)32u.logImplf!(27, "source\\gbmj\\protocol\\package.d", "gbmj.protocol.ClientImpl.accept", "ClientReactionDeal gbmj.protocol.ClientImpl.accept(DealTiles dealTiles)", "gbmj.protocol", immutable(uint), Tile[]) error instantiating
-        return new ClientDealtTiles(_player);
-    }
-    ClientReactionPick accept(PickTile pickTile)
-    {
-        import std.string;
-        tracef("client %d: received pick %s", _player.firstSeat, pickTile.tile.toString);
-        return new ClientDiscard(_player, pickTile.tile);
-    }
-private:
-    Player _player;
-}
 
 class ServerImpl : Server
 {
@@ -95,11 +77,6 @@ interface Server
     ServerAction accept(ClientDealError clientDealError);
     ServerAction accept(ClientHuSelfdrawn clientHu);
     ServerAction accept(ClientDiscard clientDiscard);
-}
-interface Client
-{
-    ClientReactionDeal accept(DealTiles dealTiles);
-    ClientReactionPick accept(PickTile pickTile);
 }
 interface ServerAction
 {
