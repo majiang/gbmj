@@ -1,6 +1,7 @@
 module gbmj.tile;
 
 import std.algorithm, std.range, std.ascii;
+static import exception = std.exception;
 import gbmj.internal;
 
 /// Typecode for the suit of a tile.
@@ -21,6 +22,7 @@ version (PWS) version = UseFlower;
 version (WMO) version = UseFlower;
 version (JMSA) version = NoFlower;
 
+/// The number of different tiles of a numeric suit.
 enum Rank maxOfNumeric = 9;
 /// The number of different tiles of a suit.
 version (UseFlower) enum Rank[] maxOfSuit = [
@@ -87,6 +89,7 @@ struct Tile
     }
 }
 
+/// The array of all tiles.
 Tile[] allTiles()
 {
     import std.traits;
@@ -100,9 +103,10 @@ Tile[] allTiles()
 
 bool isNumeric(Suit suit)
 {
-    return suit == Suit.character
-        || suit == Suit.bamboo
-        || suit == Suit.dot;
+    with (Suit)
+    return suit == character
+        || suit == bamboo
+        || suit == dot;
 }
 
 ///
@@ -113,8 +117,9 @@ bool isNumeric(Tile tile)
 
 bool isHonor(Suit suit)
 {
-    return suit == Suit.wind
-        || suit == Suit.dragon;
+    with (Suit)
+    return suit == wind
+        || suit == dragon;
 }
 
 ///
@@ -161,7 +166,7 @@ private bool isGreenDragon(Tile tile)
         && tile.rank == 1;
 }
 
-///
+/// Green tiles: 23468 bamboos or green dragon.
 bool isGreen(Tile tile)
 {
     if (tile.suit == Suit.bamboo)
@@ -175,31 +180,38 @@ private bool isWhiteDragon(Tile tile)
         && tile.rank == 2;
 }
 
-///
+/// Reversible tiles: 245689 of bamboos, 1234589 of dots or white dragon.
 bool isReversible(Tile tile)
 {
     if (tile.suit == Suit.bamboo)
         return [2, 4, 5, 6, 8, 9].canFind(tile.rank + 1);
-    if (tile.suit == Suit.dot)      // 1234589 of dots
+    if (tile.suit == Suit.dot)
         return [1, 2, 3, 4, 5, 8, 9].canFind(tile.rank + 1);
     return tile.isWhiteDragon;
 }
 
+/** The code points of the first tiles of the suits.
+
+Reference:
+<a href="http://unicode.org/charts/PDF/U1F000.pdf">Unicode Character Code Charts : Other Symbols : Game Symbols : Mahjong Tiles</a>
+*/
 enum dchar[] unicodeOffsetOfSuit = [
-    0x1F000, // East wind
-    0x1F004, // Red dragon
+    0x1F000, // East wind (south, west, north)
+    0x1F004, // Red dragon (green, white)
     0x1F007, // 1 character
     0x1F010, // 1 bamboo
     0x1F019, // 1 dot
-    0x1F022, // plum (mei) flower (mei)
+    0x1F022, // plum (mei) flower (orchid, bamboo, chrysanthemum, spring, summer, autumn, winter)
     0x1F02A, // joker (baida)
     0x1F02B];// back
 
+/// Convert a Tile to a unicode character.
 dchar toUnicodeChar(Tile tile)
 {
     return unicodeOffsetOfSuit[tile.suit] + tile.rank;
 }
 
+/// Convert a Tile to a human-readable ASCII string.
 string toAsciiString(Tile tile)
 {
     immutable rank = tile.rank;
@@ -213,12 +225,13 @@ string toAsciiString(Tile tile)
         case Suit.bamboo: return (rank+1).to!string ~ "b";
         case Suit.dot: return (rank+1).to!string ~ "d";
 
-        case Suit.flower: return "Fl";
+        case Suit.flower: return "F" ~ rank.to!string;
         case Suit.joker: return "JK";
         case Suit.unknown: return "--";
     }
 }
 
+/// Convert an ASCII string to a Tile[].
 Tile[] readTiles(string s)
 {
     Tile[] ret;
@@ -232,6 +245,7 @@ Tile[] readTiles(string s)
     return ret;
 }
 
+/// Convert a two-character ASCII string to a Tile.
 Tile readTile(string s)
 {
     if ("ESWNRG".canFind(s[0]))
@@ -240,6 +254,8 @@ Tile readTile(string s)
         return s.readNumeric;
     return s.readSpecial;
 }
+
+private:
 
 Tile readHonor(string s)
 {
@@ -266,5 +282,12 @@ Tile readNumeric(string s)
 
 Tile readSpecial(string s)
 {
-    assert (false, "Not implemented");
+    if (s == "JK")
+        return joker;
+    if (s == "BK")
+        return unknown;
+    exception.enforce(s[0] == 'F');
+    exception.enforce('0' <= s[1]);
+    exception.enforce(s[1] < '0' + maxOfSuit[Suit.flower]);
+    return (s[1] - '0').flower;
 }
